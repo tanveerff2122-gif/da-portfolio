@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Name — Data Analyst Portfolio</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       CSS CUSTOM PROPERTIES (Design Tokens)
+    ============================================================ */
+    :root {
+      --bg:          #0c0f1a;          
+      --bg-2:        #111627;          
+      --bg-3:        #181e30;          
+      --gold:        #c9a84c;          
+      --gold-light:  #e2c06e;
+      --gold-dim:    rgba(201,168,76,0.15);
+      --text:        #e8e6e0;          
+      --text-muted:  #8b8a84;
+      --text-dim:    #5a5a54;
+      --border:      rgba(201,168,76,0.18);
+      --border-dim:  rgba(255,255,255,0.06);
+      --shadow:      0 8px 48px rgba(0,0,0,0.6);
+      --radius:      12px;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body:    'DM Sans', system-ui, sans-serif;
+      --transition:  0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    ::selection { background: var(--gold); color: var(--bg); }
+    a { color: inherit; text-decoration: none; }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+    /* ============================================================
+       NOISE TEXTURE OVERLAY
+    ============================================================ */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ============================================================
+       TYPOGRAPHY HELPERS
+    ============================================================ */
+    .label {
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      line-height: 1.1;
+      color: var(--text);
+      margin-top: 0.4rem;
+    }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    section { position: relative; padding: 7rem 0; }
+
+    /* ============================================================
+       SCROLL ANIMATIONS
+    ============================================================ */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .fade-up:nth-child(2) { transition-delay: 0.1s; }
+    .fade-up:nth-child(3) { transition-delay: 0.2s; }
+    .fade-up:nth-child(4) { transition-delay: 0.3s; }
+
+    /* ============================================================
+       NAVBAR
+    ============================================================ */
+    #navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 1.4rem 0;
+      transition: background var(--transition), padding var(--transition), backdrop-filter var(--transition);
+    }
+    #navbar.scrolled {
+      background: rgba(12,15,26,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: var(--font-display); font-size: 1.25rem; color: var(--text); letter-spacing: 0.01em; }
+    .nav-logo span { color: var(--gold); }
+    .nav-links { display: flex; gap: 2.4rem; list-style: none; }
+    .nav-links a { font-size: 0.82rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); transition: color var(--transition); }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+    .nav-toggle span { display: block; width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: var(--transition); }
+
+    /* ============================================================
+       HERO SECTION
+    ============================================================ */
+    #hero { min-height: 100vh; display: flex; align-items: center; padding: 0; overflow: hidden; }
+    .hero-glow { position: absolute; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(201,168,76,0.09) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -60%); pointer-events: none; }
+    .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%); }
+    .hero-content { position: relative; z-index: 1; max-width: 780px; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.75rem; margin-bottom: 1.8rem; }
+    .hero-eyebrow::before { content: ''; display: block; width: 36px; height: 1px; background: var(--gold); }
+    .hero-name { font-family: var(--font-display); font-size: clamp(3rem, 8vw, 5.5rem); line-height: 1.05; color: var(--text); margin-bottom: 0.6rem; }
+    .hero-title { font-size: clamp(0.9rem, 2vw, 1.1rem); color: var(--gold); font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 1.6rem; }
+    .hero-tagline { font-size: clamp(1rem, 2.2vw, 1.22rem); color: var(--text-muted); max-width: 560px; line-height: 1.75; margin-bottom: 3rem; font-weight: 300; }
+    .hero-tagline strong { color: var(--text); font-weight: 500; }
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 2rem; border-radius: 6px; font-family: var(--font-body); font-size: 0.82rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; border: none; transition: all var(--transition); }
+    .btn-primary { background: var(--gold); color: var(--bg); }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(201,168,76,0.35); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+    .scroll-hint { position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; color: var(--text-dim); font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; animation: bounce 2.2s infinite; }
+    .scroll-hint svg { opacity: 0.5; }
+    @keyframes bounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+
+    /* ============================================================
+       ABOUT SECTION
+    ============================================================ */
+    #about { background: var(--bg-2); }
+    .about-divider { width: 48px; height: 1px; background: var(--gold); margin: 1.8rem 0; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; margin-top: 4rem; }
+    .about-text p { color: var(--text-muted); margin-bottom: 1.2rem; font-size: 1.01rem; }
+    .about-text p strong { color: var(--text); font-weight: 500; }
+    .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .stat-card { background: var(--bg-3); border: 1px solid var(--border-dim); border-radius: var(--radius); padding: 1.8rem; transition: border-color var(--transition), transform var(--transition); }
+    .stat-card:hover { border-color: var(--border); transform: translateY(-4px); }
+    .stat-number { font-family: var(--font-display); font-size: 2.4rem; color: var(--gold); line-height: 1; margin-bottom: 0.4rem; }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; }
+
+    /* ============================================================
+       EXPERIENCE & EDUCATION TIMELINE (NEW)
+    ============================================================ */
+    #education-experience { background: var(--bg); }
+    .timeline-grid { position: relative; max-width: 800px; margin-top: 4rem; }
+    .timeline-grid::before { content: ''; position: absolute; top: 0; bottom: 0; left: 6px; width: 2px; background: var(--border-dim); }
+    .timeline-item { position: relative; margin-bottom: 3.5rem; padding-left: 3rem; }
+    .timeline-item:last-child { margin-bottom: 0; }
+    .timeline-dot { position: absolute; left: 0; top: 0.35rem; width: 14px; height: 14px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px var(--bg); z-index: 1; }
+    .timeline-subtitle { font-size: 0.75rem; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.6rem; display: block; font-weight: 500; }
+    .timeline-title { font-family: var(--font-display); font-size: 1.4rem; color: var(--text); margin-bottom: 0.8rem; line-height: 1.3; }
+    .timeline-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 0; }
+
+    /* ============================================================
+       PROJECTS SECTION
+    ============================================================ */
+    #projects { background: var(--bg); }
+    .projects-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 4rem; flex-wrap: wrap; gap: 1rem; }
+    .projects-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8rem; }
+    .project-card { background: var(--bg-2); border: 1px solid var(--border-dim); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition); position: relative; }
+    .project-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(201,168,76,0.03) 0%, transparent 60%); pointer-events: none; }
+    .project-card:hover { border-color: var(--border); transform: translateY(-6px); box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,168,76,0.12); }
+    .project-visual { height: 160px; position: relative; overflow: hidden; background: var(--bg-3); display: flex; align-items: flex-end; padding: 1.2rem 1.5rem 0; }
+    .chart-bars { display: flex; align-items: flex-end; gap: 6px; width: 100%; height: 100%; }
+    .bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--gold-dim); border-top: 2px solid rgba(201,168,76,0.4); transition: background var(--transition); }
+    .bar.highlight { background: rgba(201,168,76,0.28); border-top-color: var(--gold); }
+    .project-card:hover .bar { background: rgba(201,168,76,0.18); }
+    .project-card:hover .bar.highlight { background: rgba(201,168,76,0.4); }
+    .chart-line-svg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    .project-icon { position: absolute; top: 1.2rem; right: 1.4rem; width: 38px; height: 38px; background: var(--gold-dim); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+    .project-body { padding: 1.8rem; display: flex; flex-direction: column; flex: 1; }
+    .project-number { font-size: 0.65rem; letter-spacing: 0.22em; color: var(--gold); text-transform: uppercase; margin-bottom: 0.6rem; }
+    .project-title { font-family: var(--font-display); font-size: 1.3rem; color: var(--text); margin-bottom: 0.9rem; line-height: 1.3; }
+    .project-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 1.4rem; flex: 1; }
+    .impact-tag { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--gold-dim); border: 1px solid rgba(201,168,76,0.25); color: var(--gold-light); padding: 0.3rem 0.7rem; border-radius: 4px; font-size: 0.74rem; font-weight: 500; margin-bottom: 1.4rem; }
+    .impact-tag::before { content: '↑'; }
+    .tools-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; }
+    .tool-badge { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); border: 1px solid var(--border-dim); border-radius: 4px; padding: 0.2rem 0.55rem; transition: border-color var(--transition), color var(--transition); }
+    .project-card:hover .tool-badge { border-color: rgba(201,168,76,0.25); color: var(--text-muted); }
+    .btn-project { align-self: flex-start; padding: 0.6rem 1.4rem; font-size: 0.76rem; }
+
+    /* ============================================================
+       SKILLS SECTION
+    ============================================================ */
+    #skills { background: var(--bg-2); }
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; margin-top: 4rem; }
+    .skill-item { background: var(--bg-3); border: 1px solid var(--border-dim); border-radius: var(--radius); padding: 1.6rem 1.8rem; transition: border-color var(--transition), transform var(--transition); }
+    .skill-item:hover { border-color: var(--border); transform: translateY(-3px); }
+    .skill-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .skill-name { display: flex; align-items: center; gap: 0.75rem; font-weight: 500; font-size: 0.95rem; }
+    .skill-icon { width: 34px; height: 34px; background: var(--gold-dim); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .skill-pct { font-size: 0.78rem; color: var(--gold); font-weight: 500; }
+    .skill-bar-track { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+    .skill-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 100%); width: 0%; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+    .skills-tags { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 3rem; }
+    .skills-tag { padding: 0.55rem 1.2rem; border: 1px solid var(--border-dim); border-radius: 100px; font-size: 0.8rem; color: var(--text-muted); transition: all var(--transition); cursor: default; }
+    .skills-tag:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+
+    /* ============================================================
+       CERTIFICATIONS SECTION
+    ============================================================ */
+    #certifications { background: var(--bg); }
+    .cert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; margin-top: 4rem; }
+    .cert-card { background: var(--bg-2); border: 1px solid var(--border-dim); border-radius: var(--radius); overflow: hidden; transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition); display: flex; flex-direction: column; }
+    .cert-card:hover { border-color: var(--border); transform: translateY(-6px); box-shadow: 0 24px 60px rgba(0,0,0,0.5); }
+    .cert-img { width: 100%; height: 240px; object-fit: cover; border-bottom: 1px solid var(--border-dim); opacity: 0.85; transition: opacity var(--transition); }
+    .cert-card:hover .cert-img { opacity: 1; }
+    .cert-content { padding: 2rem; display: flex; flex-direction: column; flex: 1; }
+    .cert-issuer { font-size: 0.75rem; color: var(--gold); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.8rem; display: block; font-weight: 500; }
+    .cert-title { font-family: var(--font-display); font-size: 1.4rem; color: var(--text); margin-bottom: 1rem; line-height: 1.3; }
+    .cert-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 0; }
+
+    /* ============================================================
+       CONTACT SECTION
+    ============================================================ */
+    #contact { background: var(--bg-2); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 5rem; align-items: start; margin-top: 4rem; }
+    .contact-info p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.75; margin-bottom: 2.4rem; }
+    .contact-links { display: flex; flex-direction: column; gap: 1rem; }
+    .contact-link { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 1.4rem; background: var(--bg-3); border: 1px solid var(--border-dim); border-radius: var(--radius); transition: border-color var(--transition), transform var(--transition); }
+    .contact-link:hover { border-color: var(--border); transform: translateX(6px); }
+    .contact-link-icon { width: 38px; height: 38px; background: var(--gold-dim); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; color: var(--gold); }
+    .contact-link-text { display: flex; flex-direction: column; }
+    .contact-link-type { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-dim); }
+    .contact-link-value { font-size: 0.9rem; color: var(--text); font-weight: 400; }
+    .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+    .form-field { display: flex; flex-direction: column; gap: 0.5rem; }
+    .form-field label { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); }
+    .form-field input, .form-field textarea { background: var(--bg-3); border: 1px solid var(--border-dim); border-radius: 8px; padding: 0.85rem 1.1rem; color: var(--text); font-family: var(--font-body); font-size: 0.9rem; font-weight: 300; transition: border-color var(--transition), box-shadow var(--transition); resize: none; outline: none; }
+    .form-field input:focus, .form-field textarea:focus { border-color: rgba(201,168,76,0.5); box-shadow: 0 0 0 3px rgba(201,168,76,0.08); }
+    .form-field textarea { min-height: 130px; }
+    .btn-submit { align-self: flex-start; background: var(--gold); color: var(--bg); padding: 0.9rem 2.2rem; }
+    .btn-submit:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(201,168,76,0.3); }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer { background: var(--bg-3); border-top: 1px solid var(--border-dim); padding: 2.4rem 0; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+    .footer-logo { font-family: var(--font-display); font-size: 1.1rem; color: var(--text); }
+    .footer-logo span { color: var(--gold); }
+    .footer-copy { font-size: 0.78rem; color: var(--text-dim); }
+    .footer-links { display: flex; gap: 1.6rem; }
+    .footer-links a { font-size: 0.78rem; color: var(--text-dim); transition: color var(--transition); }
+    .footer-links a:hover { color: var(--gold); }
+    .sep-line { display: block; width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 0; }
+
+    /* ============================================================
+       PROJECT MODAL (POPUP CSS) 
+    ============================================================ */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(12, 15, 26, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 2rem; opacity: 0; pointer-events: none; transition: opacity var(--transition); }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-content { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 900px; max-height: 90vh; overflow-y: auto; position: relative; transform: translateY(30px) scale(0.98); transition: transform var(--transition); box-shadow: var(--shadow); }
+    .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
+    .modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: var(--bg-3); border: 1px solid var(--border-dim); color: var(--text); width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; transition: all var(--transition); }
+    .modal-close:hover { background: var(--gold); color: var(--bg); transform: rotate(90deg); }
+    .modal-image-container { width: 100%; height: 350px; background: var(--bg-3); border-bottom: 1px solid var(--border-dim); position: relative; }
+    .modal-image-container img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+    .modal-body-content { padding: 3rem; }
+    .modal-body-content .label { margin-bottom: 0.5rem; display: block; }
+    .modal-body-content .section-title { margin-top: 0; margin-bottom: 1.5rem; font-size: 2.5rem;}
+    .modal-desc { color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; margin-bottom: 2.5rem; }
+    .modal-desc h4 { color: var(--gold); font-family: var(--font-display); font-size: 1.3rem; margin: 2rem 0 0.8rem 0; letter-spacing: 0.05em; }
+    .modal-desc p { margin-bottom: 1rem; color: var(--text-muted); }
+    .modal-desc ul { margin-bottom: 1.5rem; padding-left: 1.2rem; color: var(--text-muted); }
+    .modal-desc li { margin-bottom: 0.5rem; }
+    .modal-desc li::marker { color: var(--gold); }
+    .modal-short-desc { font-size: 1.15rem !important; color: var(--text) !important; margin-bottom: 2rem !important; border-bottom: 1px solid var(--border-dim); padding-bottom: 1.5rem; }
+    .modal-impact { font-weight: 400; color: var(--gold-light) !important; background: var(--gold-dim); padding: 1rem 1.2rem; border-radius: 6px; border-left: 3px solid var(--gold); margin-top: 0.5rem; }
+    .modal-links-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 900px) {
+      .projects-grid { grid-template-columns: 1fr; max-width: 520px; margin: 0 auto; }
+      .cert-grid { grid-template-columns: 1fr; max-width: 600px; margin: 4rem auto 0; }
+      .about-grid, .contact-grid, .form-row { grid-template-columns: 1fr; gap: 3rem; }
+    }
+    @media (max-width: 680px) {
+      .nav-links { display: none; }
+      .nav-toggle { display: flex; }
+      .nav-links.open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: rgba(12,15,26,0.97); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-dim); padding: 1.5rem 2rem; gap: 1.2rem; }
+      .about-stats { grid-template-columns: 1fr 1fr; }
+      .projects-header { flex-direction: column; align-items: flex-start; }
+      section { padding: 5rem 0; }
+      .modal-body-content { padding: 1.5rem; }
+      .modal-image-container { height: 200px; }
+      .modal-body-content .section-title { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav id="navbar" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a class="nav-logo" href="#hero">YN<span>.</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#about">About</a></li>
+        <li><a href="#education-experience">Experience</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <section id="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-dp" style="margin-bottom: 2rem;">
+          <img src="images/dp.jpeg" alt="Profile Picture" style="width: 180px; height: 180px; border-radius: 50%; object-fit: cover; border: 4px solid var(--gold-dim); box-shadow: var(--shadow); display: block;">
+        </div>
+        <div class="hero-eyebrow"><span class="label">Data Analyst Portfolio</span></div>
+        <h1 class="hero-name">Ahmad Tanveer Khan</h1>
+        <p class="hero-title">Data Analyst &nbsp;|&nbsp; Excel &nbsp;|&nbsp; SQL &nbsp;|&nbsp; Power BI</p>
+        <p class="hero-tagline">
+          I transform <strong>raw data into decisions</strong> — uncovering the patterns that
+          drive growth, efficiency, and clarity for modern businesses.
+        </p>
+        <div class="hero-cta">
+          <a href="#projects" class="btn btn-primary">View Projects</a>
+          <a href="#contact" class="btn btn-outline">Contact Me</a>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-hint" aria-hidden="true">
+      <span>Scroll</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  </section>
+
+  <span class="sep-line"></span>
+
+  <section id="about">
+    <div class="container">
+      <div class="fade-up">
+        <p class="label">Who I Am</p>
+        <h2 class="section-title">Turning Complexity<br/><em>Into Clarity</em></h2>
+        <div class="about-divider"></div>
+      </div>
+      <div class="about-grid">
+        <div class="about-text fade-up">
+          <p>I'm a <strong>fresher Data Analyst</strong> with a passion for solving real-world business problems through data. I believe every dataset tells a story — and my job is to translate that story into actionable insights.</p>
+          <p>My work spans <strong>data cleaning and wrangling</strong>, building interactive dashboards in <strong>Power BI</strong>, writing efficient <strong>SQL queries</strong>, and creating business-ready reports in <strong>Excel</strong>.</p>
+          <p>I thrive at the intersection of analytical thinking and business context — asking the right questions before reaching for the data.</p>
+          <a href="https://drive.google.com/drive/folders/12NC8UvK6Ajo_KXyJMy52MpLOWqTjNe3a?usp=sharing" target="_blank" rel="noopener" class="btn btn-primary" style="margin-top:1.5rem; display:inline-flex;">Download Resume</a>
+        </div>
+        <div class="about-stats fade-up">
+          <div class="stat-card"><div class="stat-number">6+</div><div class="stat-label">End-to-end analytics projects</div></div>
+          <div class="stat-card"><div class="stat-number">1M+</div><div class="stat-label">Rows of data analyzed</div></div>
+          <div class="stat-card"><div class="stat-number">5</div><div class="stat-label">Core tools mastered</div></div>
+          <div class="stat-card"><div class="stat-number">100%</div><div class="stat-label">Business-first thinking</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <span class="sep-line"></span>
+
+  <section id="education-experience">
+    <div class="container">
+      <div class="fade-up">
+        <p class="label">Background</p>
+        <h2 class="section-title">Experience &amp;<br/><em>Education</em></h2>
+      </div>
+
+      <div class="timeline-grid">
+        
+        <div class="timeline-item fade-up">
+          <div class="timeline-dot"></div>
+          <span class="timeline-subtitle">Self / Academic</span>
+          <h3 class="timeline-title">Data Analyst Projects</h3>
+          <p class="timeline-desc">Worked on real-world datasets, built dashboards and reports, applied data cleaning and transformation, and generated insights for decision-making.</p>
+        </div>
+
+        <div class="timeline-item fade-up">
+          <div class="timeline-dot"></div>
+          <span class="timeline-subtitle">Integral University &nbsp;|&nbsp; 2024 – 2026</span>
+          <h3 class="timeline-title">Master of Computer Applications (MCA)</h3>
+        </div>
+
+        <div class="timeline-item fade-up">
+          <div class="timeline-dot"></div>
+          <span class="timeline-subtitle">Lucknow University &nbsp;|&nbsp; 2021 – 2024</span>
+          <h3 class="timeline-title">Bachelor of Computer Applications (BCA)</h3>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <span class="sep-line"></span>
+
+  <section id="projects">
+    <div class="container">
+      <div class="projects-header fade-up">
+        <div>
+          <p class="label">Selected Work</p>
+          <h2 class="section-title">Projects</h2>
+        </div>
+        <a href="https://github.com/tanveerff2122-gif" target="_blank" rel="noopener" class="btn btn-outline" style="height:fit-content;">GitHub →</a>
+      </div>
+
+      <div class="projects-grid" id="projectsGridContainer">
+        </div>
+
+    </div>
+  </section>
+
+  <span class="sep-line"></span>
+
+  <section id="skills">
+    <div class="container">
+      <div class="fade-up">
+        <p class="label">Capabilities</p>
+        <h2 class="section-title">Skills &amp;<br/><em>Expertise</em></h2>
+      </div>
+      <div class="skills-grid" id="skillsGrid">
+        <div class="skill-item fade-up"><div class="skill-header"><div class="skill-name"><div class="skill-icon">📗</div>Microsoft Excel</div><span class="skill-pct">85%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-pct="85"></div></div></div>
+        <div class="skill-item fade-up"><div class="skill-header"><div class="skill-name"><div class="skill-icon">🗄️</div>SQL</div><span class="skill-pct">80%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-pct="80"></div></div></div>
+        <div class="skill-item fade-up"><div class="skill-header"><div class="skill-name"><div class="skill-icon">📊</div>Power BI</div><span class="skill-pct">78%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-pct="78"></div></div></div>
+        <div class="skill-item fade-up"><div class="skill-header"><div class="skill-name"><div class="skill-icon">🧹</div>Data Cleaning</div><span class="skill-pct">88%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-pct="88"></div></div></div>
+        <div class="skill-item fade-up"><div class="skill-header"><div class="skill-name"><div class="skill-icon">📈</div>Data Visualization</div><span class="skill-pct">82%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-pct="82"></div></div></div>
+        <div class="skill-item fade-up"><div class="skill-header"><div class="skill-name"><div class="skill-icon">⚙️</div>Power Query / DAX</div><span class="skill-pct">72%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-pct="72"></div></div></div>
+        <div class="skill-item fade-up"><div class="skill-header"><div class="skill-name"><div class="skill-icon">🐍</div>Python</div><span class="skill-pct">82%</span></div><div class="skill-bar-track"><div class="skill-bar-fill" data-pct="82"></div></div></div>
+      </div>
+      <div class="skills-tags fade-up" style="margin-top:3rem;">
+        <span class="skills-tag">Analytical Thinking</span><span class="skills-tag">Business Intelligence</span><span class="skills-tag">Storytelling with Data</span><span class="skills-tag">Dashboard Design</span><span class="skills-tag">KPI Reporting</span><span class="skills-tag">Excel Pivot Tables</span><span class="skills-tag">Data Modeling</span><span class="skills-tag">Problem Solving</span><span class="skills-tag">Pandas</span><span class="skills-tag">NumPy</span><span class="skills-tag">Matplotlib</span><span class="skills-tag">Seaborn</span><span class="skills-tag">EDA</span><span class="skills-tag">Data Manipulation</span>
+      </div>
+    </div>
+  </section>
+
+  <span class="sep-line"></span>
+
+  <section id="certifications">
+    <div class="container">
+      <div class="fade-up">
+        <p class="label">Continuous Learning</p>
+        <h2 class="section-title">Certifications</h2>
+      </div>
+
+      <div class="cert-grid">
+        <div class="cert-card fade-up">
+          <img class="cert-img" src="https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&w=800&q=80" alt="Tata Virtual Internship Certificate">
+          <div class="cert-content">
+            <span class="cert-issuer">Tata / The Forage</span>
+            <h3 class="cert-title">Data Visualisation: Empowering Business with Effective Insights</h3>
+            <p class="cert-desc">Completed a rigorous virtual internship simulating a Data Analyst role at Tata. Analyzed complex datasets, built interactive Power BI dashboards, and presented strategic insights to leadership teams.</p>
+          </div>
+        </div>
+
+        <div class="cert-card fade-up">
+          <img class="cert-img" src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80" alt="Google Data Analytics Certificate">
+          <div class="cert-content">
+            <span class="cert-issuer">Google / Coursera</span>
+            <h3 class="cert-title">Google Data Analytics Professional Certificate</h3>
+            <p class="cert-desc">Comprehensive training covering the entire data analysis process. Gained hands-on experience with data cleaning, visualization, spreadsheets, SQL, R programming, and Tableau.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <span class="sep-line"></span>
+
+  <section id="contact">
+    <div class="container">
+      <div class="fade-up">
+        <p class="label">Get In Touch</p>
+        <h2 class="section-title">Let's Work<br/><em>Together</em></h2>
+      </div>
+      <div class="contact-grid">
+        <div class="contact-info fade-up">
+          <p>I'm actively looking for <strong style="color:var(--text)">data analyst opportunities</strong> — internships, full-time roles, and freelance projects. If you're working on something interesting, let's connect.</p>
+          <div class="contact-links">
+            <a href="mailto:tanveerff2122@gmail.com" class="contact-link">
+              <div class="contact-link-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2"/>
+                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+              </div>
+              <div class="contact-link-text">
+                <span class="contact-link-type">Email</span>
+                <span class="contact-link-value">tanveerff2122@gmail.com</span>
+              </div>
+            </a>
+            
+            <a href="https://www.linkedin.com/in/tanveerkhan021/?skipRedirect=true" target="_blank" rel="noopener" class="contact-link">
+              <div class="contact-link-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+              </div>
+              <div class="contact-link-text">
+                <span class="contact-link-type">LinkedIn</span>
+                <span class="contact-link-value">linkedin.com/in/tanveerkhan021</span>
+              </div>
+            </a>
+            
+            <a href="https://github.com/tanveerff2122-gif" target="_blank" rel="noopener" class="contact-link">
+              <div class="contact-link-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+              </div>
+              <div class="contact-link-text">
+                <span class="contact-link-type">GitHub</span>
+                <span class="contact-link-value">github.com/tanveerff2122-gif</span>
+              </div>
+            </a>
+          </div>
+        </div>
+        <form class="contact-form fade-up" id="contactForm" action="https://formspree.io/f/xjkoznvk" method="POST">
+          <div class="form-row">
+            <div class="form-field"><label for="fname">First Name</label><input type="text" id="fname" name="name" placeholder="John" required /></div>
+            <div class="form-field"><label for="lname">Last Name</label><input type="text" id="lname" name="last_name" placeholder="Doe" required /></div>
+          </div>
+          <div class="form-field"><label for="email">Email Address</label><input type="email" id="email" name="email" placeholder="john@company.com" required /></div>
+          <div class="form-field"><label for="subject">Subject</label><input type="text" id="subject" name="subject" placeholder="Job opportunity / Project collaboration" /></div>
+          <div class="form-field"><label for="message">Message</label><textarea id="message" name="message" placeholder="Tell me about the opportunity or project…" required></textarea></div>
+          <button class="btn btn-submit btn-primary" type="submit" id="contact-submit-btn">Send Message</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container footer-inner">
+      <div class="footer-logo">Your Name<span>.</span></div>
+      <p class="footer-copy">© 2025 Your Name. All rights reserved.</p>
+      <div class="footer-links"><a href="#about">About</a><a href="#projects">Projects</a><a href="#skills">Skills</a><a href="#certifications">Certifications</a><a href="#contact">Contact</a></div>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" id="projectModalOverlay">
+    <div class="modal-content">
+      <button class="modal-close" id="closeModalBtn">&times;</button>
+      <div class="modal-image-container">
+        <img id="modalImage" src="" alt="Project Dashboard Preview" />
+      </div>
+      <div class="modal-body-content">
+        <span class="label" id="modalCategory">Category</span>
+        <h2 class="section-title" id="modalTitle">Project Title</h2>
+        <div class="modal-desc" id="modalDesc">Project detailed description will load here...</div>
+        <div class="modal-links-row">
+          <a href="#" id="modalLiveLink" target="_blank" class="btn btn-primary">View Dashboard</a>
+          <a href="#" id="modalRepoLink" target="_blank" class="btn btn-outline">View Code</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ============================================================
+       DYNAMIC PROJECTS DATA SYSTEM
+    ============================================================ */
+    
+    // HTML templates for the visual chart designs
+    const visuals = {
+      bar: `<div class="chart-bars"><div class="bar" style="height:40%"></div><div class="bar highlight" style="height:75%"></div><div class="bar" style="height:55%"></div><div class="bar highlight" style="height:90%"></div><div class="bar" style="height:60%"></div><div class="bar" style="height:45%"></div><div class="bar highlight" style="height:80%"></div><div class="bar" style="height:65%"></div><div class="bar" style="height:50%"></div><div class="bar highlight" style="height:95%"></div></div>`,
+      line: `<svg class="chart-line-svg" viewBox="0 0 300 120" preserveAspectRatio="none"><defs><linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(201,168,76,0.25)"/><stop offset="100%" stop-color="rgba(201,168,76,0)"/></linearGradient></defs><path d="M0,90 C40,75 60,40 100,50 C140,60 160,25 200,30 C240,35 270,15 300,20" stroke="rgba(201,168,76,0.6)" stroke-width="2" fill="none"/><path d="M0,90 C40,75 60,40 100,50 C140,60 160,25 200,30 C240,35 270,15 300,20 L300,120 L0,120 Z" fill="url(#lineGrad)"/><circle cx="100" cy="50" r="4" fill="rgba(201,168,76,0.8)"/><circle cx="200" cy="30" r="4" fill="rgba(201,168,76,0.8)"/><circle cx="300" cy="20" r="4" fill="var(--gold)"/></svg>`,
+      scatter: `<svg class="chart-line-svg" viewBox="0 0 300 140" preserveAspectRatio="none"><line x1="0" y1="35" x2="300" y2="35" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="0" y1="70" x2="300" y2="70" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><line x1="0" y1="105" x2="300" y2="105" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><circle cx="60" cy="90" r="22" fill="rgba(201,168,76,0.12)" stroke="rgba(201,168,76,0.35)" stroke-width="1.5"/><circle cx="160" cy="50" r="32" fill="rgba(201,168,76,0.18)" stroke="rgba(201,168,76,0.5)" stroke-width="1.5"/><circle cx="255" cy="100" r="18" fill="rgba(201,168,76,0.10)" stroke="rgba(201,168,76,0.30)" stroke-width="1.5"/><circle cx="110" cy="110" r="14" fill="rgba(201,168,76,0.08)" stroke="rgba(201,168,76,0.25)" stroke-width="1"/><text x="60" y="93" text-anchor="middle" font-size="8" fill="rgba(201,168,76,0.7)" font-family="sans-serif">A</text><text x="160" y="53" text-anchor="middle" font-size="10" fill="rgba(201,168,76,0.9)" font-family="sans-serif">B</text><text x="255" y="103" text-anchor="middle" font-size="7" fill="rgba(201,168,76,0.6)" font-family="sans-serif">C</text><text x="110" y="113" text-anchor="middle" font-size="6" fill="rgba(201,168,76,0.5)" font-family="sans-serif">D</text></svg>`
+    };
+
+    // The Array storing all 6 projects
+    const projectsData = [
+      {
+        id: "Project 01",
+        icon: "📊",
+        title: "E-commerce Sales Dashboard",
+        cardDesc: "Developed an end-to-end Power BI dashboard for a D2C brand to track revenue trends, top-selling SKUs, and customer return rates.",
+        metric: "Analyzed 12,000+ transaction rows",
+        tools: ["Power BI", "SQL", "Excel", "DAX"],
+        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80",
+        problem: "The sales team spent hours manually compiling weekly performance reports from messy transaction data, leaving no time for actual analysis.",
+        insights: [
+          "Identified a 15% drop in Q3 sales tied to a specific underperforming region.",
+          "Found that the top 5 SKUs generate nearly 40% of total revenue.",
+          "Spotted a high return rate (12%) isolated entirely within the electronics category."
+        ],
+        approach: [
+          "Cleaned and joined 12,000+ rows of raw transaction data using SQL.",
+          "Built dynamic DAX measures for YTD sales, profit margins, and return rates.",
+          "Designed an interactive Power BI layout allowing managers to quickly filter by date and region."
+        ],
+        impact: "Cut reporting time by 5 hours a week and helped the team spot regional sales dips instantly.",
+        livelink: "#",
+        repolink: "#",
+        visualTemplate: visuals.bar
+      },
+      {
+        id: "Project 02",
+        icon: "👥",
+        title: "HR Analytics Dashboard",
+        cardDesc: "Built a comprehensive HR insights report to surface attrition drivers, department headcount trends, and employee tenure patterns.",
+        metric: "Reduced manual reporting by 60%",
+        tools: ["Excel", "Power Query", "Power BI"],
+        image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80",
+        problem: "HR leadership struggled to see exactly why employees were leaving and which departments had the highest turnover risk.",
+        insights: [
+          "Overall attrition rate stood at 14%, with a major spike in the Sales department.",
+          "Employees who left usually had between 1 to 2 years of tenure.",
+          "Salary band analysis showed a noticeable gap in mid-level compensation."
+        ],
+        approach: [
+          "Automated data cleaning from raw HR system exports using Power Query.",
+          "Created structured pivot tables and connected charts to track turnover trends.",
+          "Built a clean, executive-friendly dashboard layout for quick stakeholder reviews."
+        ],
+        impact: "Gave HR a clear, visual view of retention issues, enabling faster intervention.",
+        livelink: "#",
+        repolink: "#",
+        visualTemplate: visuals.line
+      },
+      {
+        id: "Project 03",
+        icon: "🎯",
+        title: "Customer Segmentation Analysis",
+        cardDesc: "Performed RFM (Recency, Frequency, Monetary) segmentation identifying distinct customer tiers to personalize campaigns.",
+        metric: "Segmented 25,000+ customers",
+        tools: ["SQL", "Excel", "RFM Analysis"],
+        image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80",
+        problem: "Marketing was sending the same generic emails to all 25,000 customers, resulting in low open rates and wasted budget.",
+        insights: [
+          "The top 10% of customers ('Champions') drove nearly 35% of total sales.",
+          "Identified over 3,000 'At Risk' customers who hadn't made a purchase in 6 months.",
+          "Found that recent buyers were mostly purchasing low-ticket items."
+        ],
+        approach: [
+          "Wrote SQL window functions to calculate Recency, Frequency, and Monetary scores.",
+          "Grouped users into 4 distinct tiers (Champions, Loyal, At Risk, Lost).",
+          "Visualized the segments in Excel to share directly with the marketing team."
+        ],
+        impact: "Allowed marketing to run highly targeted campaigns, boosting email open rates significantly.",
+        livelink: "#",
+        repolink: "#",
+        visualTemplate: visuals.scatter
+      },
+      {
+        id: "Project 04",
+        icon: "📱",
+        title: "Marketing Campaign Analysis",
+        cardDesc: "Evaluated multi-channel marketing campaigns to identify the highest ROI channels and optimize monthly ad spend.",
+        metric: "Optimized $50k monthly ad spend",
+        tools: ["Power BI", "SQL", "Google Analytics"],
+        image: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=1000&q=80",
+        problem: "Marketing budget was allocated evenly across channels without understanding the true cost of customer acquisition per platform.",
+        insights: [
+          "Email marketing generated 3x higher ROI compared to paid social.",
+          "Cost Per Acquisition (CPA) on Facebook increased by 22% during Q4.",
+          "Retargeting ads drove 40% of all bottom-of-funnel conversions."
+        ],
+        approach: [
+          "Aggregated data from Google Analytics and Facebook Ads using SQL.",
+          "Created a unified dashboard in Power BI to track CPA and ROAS in real-time.",
+          "Applied attribution modeling to assign revenue correctly to each channel."
+        ],
+        impact: "Reallocated 30% of budget to high-performing channels, increasing overall marketing ROI by 18%.",
+        livelink: "#",
+        repolink: "#",
+        visualTemplate: visuals.bar
+      },
+      {
+        id: "Project 05",
+        icon: "💰",
+        title: "Financial Performance Tracker",
+        cardDesc: "Automated Profit & Loss reporting and revenue forecasting to provide executive teams with real-time financial health visibility.",
+        metric: "Automated 20+ monthly reports",
+        tools: ["Excel", "Power Query", "Financial Modeling"],
+        image: "https://images.unsplash.com/photo-1543286386-713bdd548da4?auto=format&fit=crop&w=1000&q=80",
+        problem: "The finance team spent a full week every month manually updating fragmented Excel sheets for the monthly P&L review.",
+        insights: [
+          "Operating expenses grew 15% faster than revenue in Q2.",
+          "Software subscription costs were the highest growing expense category year-over-year.",
+          "Cash flow projections showed a potential deficit if invoice collection slowed."
+        ],
+        approach: [
+          "Built an automated Power Query pipeline to clean and shape raw ERP data.",
+          "Developed dynamic DAX time-intelligence measures (YTD, YoY Growth).",
+          "Designed an interactive P&L matrix visualization for easy drill-down."
+        ],
+        impact: "Reduced month-end reporting time from 5 days to just 4 hours, giving leadership faster insights.",
+        livelink: "#",
+        repolink: "#",
+        visualTemplate: visuals.line
+      },
+      {
+        id: "Project 06",
+        icon: "📦",
+        title: "Supply Chain Optimization",
+        cardDesc: "Analyzed warehouse stock levels and supplier lead times to prevent stockouts and identify costly dead inventory.",
+        metric: "Analyzed 5,000+ warehouse SKUs",
+        tools: ["SQL", "Power BI", "Data Modeling"],
+        image: "https://images.unsplash.com/photo-1586528116311-ad8ed7c508b0?auto=format&fit=crop&w=1000&q=80",
+        problem: "Frequent stockouts of high-demand items were costing the company sales, while obsolete items took up expensive warehouse space.",
+        insights: [
+          "Top 20% of SKUs suffered stockouts on average 4 days a month.",
+          "Supplier lead times for critical components varied widely, by up to 14 days.",
+          "Warehouse holding costs for dead stock were 12% above the company target."
+        ],
+        approach: [
+          "Extracted historical inventory logs and shipping data using SQL.",
+          "Calculated optimal reorder points and safety stock levels for top-tier items.",
+          "Built a visual alert system in Power BI to highlight low-stock components."
+        ],
+        impact: "Decreased stockout occurrences by 25% and identified $15k in dead stock that could be liquidated.",
+        livelink: "#",
+        repolink: "#",
+        visualTemplate: visuals.scatter
+      }
+    ];
+
+    // Function to render projects to the grid
+    function renderProjects() {
+      const container = document.getElementById('projectsGridContainer');
+      let htmlString = "";
+
+      projectsData.forEach(project => {
+        const toolsHTML = project.tools.map(tool => `<span class="tool-badge">${tool}</span>`).join("");
+        
+        htmlString += `
+          <div class="project-card fade-up">
+            <div class="project-visual">
+              <div class="project-icon">${project.icon}</div>
+              ${project.visualTemplate}
+            </div>
+            <div class="project-body">
+              <div class="project-number">${project.id}</div>
+              <h3 class="project-title">${project.title}</h3>
+              <p class="project-desc">${project.cardDesc}</p>
+              <div class="impact-tag">${project.metric}</div>
+              <div class="tools-row">${toolsHTML}</div>
+              <button class="btn btn-primary btn-project view-project-btn" data-id="${project.id}">
+                View Dashboard →
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = htmlString;
+    }
+
+    // Initialize Render
+    renderProjects();
+
+    /* ============================================================
+       SCROLL ANIMATIONS & INTERSECTION OBSERVER
+    ============================================================ */
+    const fadeEls = document.querySelectorAll('.fade-up');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    fadeEls.forEach(el => io.observe(el));
+
+    /* ── Skill bars animate ── */
+    const skillBars = document.querySelectorAll('.skill-bar-fill');
+    const skillsSection = document.getElementById('skills');
+    const skillsIO = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        skillBars.forEach(bar => { bar.style.width = bar.dataset.pct + '%'; });
+        skillsIO.disconnect();
+      }
+    }, { threshold: 0.3 });
+    skillsIO.observe(skillsSection);
+
+
+    /* ============================================================
+       DYNAMIC MODAL LOGIC 
+    ============================================================ */
+    const modalOverlay = document.getElementById('projectModalOverlay');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    
+    // Modal Elements
+    const modalImage = document.getElementById('modalImage');
+    const modalCategory = document.getElementById('modalCategory');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalLiveLink = document.getElementById('modalLiveLink');
+    const modalRepoLink = document.getElementById('modalRepoLink');
+
+    // Event Delegation for dynamically generated buttons
+    document.getElementById('projectsGridContainer').addEventListener('click', (e) => {
+      const btn = e.target.closest('.view-project-btn');
+      if (!btn) return;
+      e.preventDefault();
+
+      const projectId = btn.getAttribute('data-id');
+      const project = projectsData.find(p => p.id === projectId);
+
+      if (project) {
+        // Populate static elements
+        modalImage.src = project.image;
+        modalCategory.textContent = project.id;
+        modalTitle.textContent = project.title;
+        modalLiveLink.href = project.livelink;
+        modalRepoLink.href = project.repolink;
+
+        // Build dynamic HTML content for description
+        const insightsHTML = project.insights.map(i => `<li>${i}</li>`).join('');
+        const approachHTML = project.approach.map(a => `<li>${a}</li>`).join('');
+        const toolsString = project.tools.join(', ');
+
+        modalDesc.innerHTML = `
+          <p class='modal-short-desc'>${project.cardDesc}</p>
+          <h4>Problem Statement</h4>
+          <p>${project.problem}</p>
+          
+          <h4>Key Insights</h4>
+          <ul>${insightsHTML}</ul>
+          
+          <h4>Tools Used</h4>
+          <p>${toolsString}</p>
+          
+          <h4>Approach</h4>
+          <ul>${approachHTML}</ul>
+          
+          <h4>Impact / Result</h4>
+          <p class='modal-impact'>${project.impact}</p>
+        `;
+
+        // Show Modal
+        modalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; 
+      }
+    });
+
+    const closeProjectModal = () => {
+      modalOverlay.classList.remove('active');
+      document.body.style.overflow = ''; 
+      setTimeout(() => { modalImage.src = ""; }, 350); 
+    };
+
+    closeModalBtn.addEventListener('click', closeProjectModal);
+    modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) closeProjectModal(); });
+    document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && modalOverlay.classList.contains('active')) closeProjectModal(); });
+
+
+    /* ============================================================
+       NAVIGATION & MISC
+    ============================================================ */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => { navbar.classList.toggle('scrolled', window.scrollY > 40); }, { passive: true });
+
+    const navToggle = document.getElementById('navToggle');
+    const navLinks  = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => { navLinks.classList.toggle('open'); });
+    navLinks.querySelectorAll('a').forEach(a => { a.addEventListener('click', () => navLinks.classList.remove('open')); });
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    /* ============================================================
+       FORMSPREE INTEGRATION
+    ============================================================ */
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+      contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault(); 
+        
+        const btn = document.getElementById('contact-submit-btn');
+        btn.textContent = 'Sending...';
+        btn.disabled = true;
+
+        try {
+          const response = await fetch(contactForm.action, {
+            method: contactForm.method,
+            body: new FormData(contactForm),
+            headers: { 'Accept': 'application/json' }
+          });
+
+          if (response.ok) {
+            btn.textContent = 'Message sent successfully!';
+            btn.style.background = '#4c8b6a';
+            contactForm.reset();
+          } else {
+            btn.textContent = 'Oops! There was a problem.';
+            btn.style.background = '#8b4545';
+          }
+        } catch (error) {
+          btn.textContent = 'Oops! There was a problem.';
+          btn.style.background = '#8b4545';
+        }
+
+        setTimeout(() => {
+          btn.textContent = 'Send Message';
+          btn.style.background = '';
+          btn.disabled = false;
+        }, 3500);
+      });
+    }
+  </script>
+</body>
+</html>
